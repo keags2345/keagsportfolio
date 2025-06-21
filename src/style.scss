@@ -19,8 +19,70 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Experience
+//Test
+.loading-screen {
+  @include vars.centered;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 108vw;
+  height: 108vh;
+  margin-left: -54vw;
+  margin-top: -54vh;
+  overflow: hidden;
+  z-index: 999999;
+  border: 8px solid vars.$base-white;
+  background-color: vars.$base-grey;
+  transform: perspective(1000px);
+  border-radius: 48px;
+}
 
+.loading-screen-button {
+  font-family: "Roboto Slab";
+  @include vars.centered;
+  background-color: transparent;
+  padding: 10px 40px;
+  outline: none;
+  color: vars.$base-white;
+  border-radius: 1.2rem;
+  border: none;
+  font-size: 42px;
+
+  // @include media.media("<=tablet") {
+  //   font-size: 32px;
+  // }
+}
+
+.instructions {
+  @include vars.centered;
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  max-width: 1200px;
+  width: 90%;
+  font-size: 28px;
+  transform: translate(-50%, -50%);
+  font-family: "PP Neue Montreal ";
+  color: #e6dede;
+}
+
+// .desktop-instructions {
+//   @include media.media("<tablet") {
+//     display: none;
+//   }
+// }
+
+// .mobile-instructions {
+//   @include media.media(">=tablet") {
+//     display: none;
+//   }
+//   @include media.media("<=tablet") {
+//     font-size: 28px;
+//   }
+// }
+
+
+//Experience
 #experience {
   position: fixed;
   height: 100%;
@@ -34,6 +96,8 @@
     width: 100%;
   }
 }
+
+
 
 //Modals
 .modal{

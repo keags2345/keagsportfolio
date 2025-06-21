@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import './style.scss'
+import smokeVertexShader from "./shaders/smoke/vertex.glsl";
+import smokeFragmentShader from "./shaders/smoke/fragment.glsl";
+import themeVertexShader from "./shaders/theme/vertex.glsl";
+import themeFragmentShader from "./shaders/theme/fragment.glsl";
 import { OrbitControls } from './utils/orbitControls.js';
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -15,6 +19,54 @@ const sizes ={
 const modals = {
   Name:document.querySelector(".modal.Name"),
 };
+
+// Scene Setup
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera( 
+  45, 
+  sizes.width / sizes.height, 
+  0.1, 
+  1000 
+);
+camera.position.set( -5.116486390563189, 
+2.3337333591461946, 4.899790787134163);
+
+const renderer = new THREE.WebGLRenderer({canvas:canvas, antialias: true});
+renderer.setSize( sizes.width, sizes.height );
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+
+// Scrolling and angle restrictions
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.minDistance = 2;
+controls.maxDistance = 10;
+controls.minPolarAngle = 0;
+controls.maxPolarAngle = Math.PI/2;
+controls.minAzimuthAngle = -Math.PI/2.5;
+controls.maxAzimuthAngle = 0;
+
+
+
+
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+
+controls.update();
+controls.target.set(0.5393740914563012, 1.0057838936593084, 
+0.09878860580496839)
+
+
+
+// const canvas = document.querySelector("#experience-canvas");
+// const sizes ={
+//   width: window.innerWidth,
+//   height: window.innerHeight
+// };
+
+// const modals = {
+//   Name:document.querySelector(".modal.Name"),
+// };
 
 
 let touchHappened = false;
@@ -74,6 +126,83 @@ const hideModal = (modal) =>{
 
 let isModalOpen = false;
 
+const manager = new THREE.LoadingManager();
+const overlay = document.querySelector(".overlay");
+
+const loadingScreen = document.querySelector(".loading-screen");
+const loadingScreenButton = document.querySelector(".loading-screen-button");
+
+ manager.onLoad = function () {
+  loadingScreenButton.style.border = "8px solid vars.$base-black";
+  loadingScreenButton.style.background = "vars.base-white";
+  loadingScreenButton.style.color = "vars.$base-white";
+  loadingScreenButton.style.boxShadow = "rgba(0, 0, 0, 0.24) 0px 3px 8px";
+  loadingScreenButton.textContent = "welcome";
+  loadingScreenButton.style.cursor = "pointer";
+  loadingScreenButton.style.transition =
+    "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+  let isDisabled = false;
+
+  function handleEnter() {
+    if (isDisabled) return;
+
+    loadingScreenButton.style.cursor = "default";
+    loadingScreenButton.style.border = "8px solid vars.$base-black";
+    loadingScreenButton.style.background = "vars.$base-black";
+    loadingScreenButton.style.color = "vars.$base-white";
+    loadingScreenButton.style.boxShadow = "none";
+    //loadingScreenButton.textContent = "Welcome";
+    loadingScreen.style.background = "vars.$base-black";
+    isDisabled = true;
+    playReveal();
+  }
+  
+  loadingScreenButton.addEventListener("mouseenter", () => {
+    loadingScreenButton.style.transform = "scale(1.3)";
+  });
+
+  loadingScreenButton.addEventListener("touchend", (e) => {
+    touchHappened = true;
+    e.preventDefault();
+    handleEnter();
+  });
+
+  loadingScreenButton.addEventListener("click", (e) => {
+    if (touchHappened) return;
+    handleEnter();
+  });
+
+  loadingScreenButton.addEventListener("mouseleave", () => {
+    loadingScreenButton.style.transform = "none";
+  });
+};
+
+function playReveal() {
+  const tl = gsap.timeline();
+
+  tl.to(loadingScreen, {
+    scale: 0.5,
+    duration: 1.2,
+    delay: 0.25,
+    ease: "back.in(1.8)",
+  }).to(
+    loadingScreen,
+    {
+      y: "200vh",
+      transform: "perspective(1000px) rotateX(45deg) rotateY(-35deg)",
+      duration: 1.2,
+      ease: "back.in(1.8)",
+      onComplete: () => {
+        isModalOpen = false;
+        playIntroAnimation();
+        loadingScreen.remove();
+      },
+    },
+    "-=0.1"
+  );
+}
+
+
 
 const raycasterObjects = [];
 let currentIntersects = [];
@@ -96,7 +225,7 @@ const textureLoader = new THREE.TextureLoader();
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
 
-const loader = new GLTFLoader();
+const loader = new GLTFLoader(manager);
 loader.setDRACOLoader(dracoLoader);
 
 // Glass reflections lol
@@ -161,16 +290,16 @@ Object.entries(textureMap).forEach(([key, paths]) => {
   loadedTextures.night[key] = nightTexture;
 });
 
-// Scene Setup
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 
-  45, 
-  sizes.width / sizes.height, 
-  0.1, 
-  1000 
-);
-camera.position.set( -5.116486390563189, 
-2.3337333591461946, 4.899790787134163);
+// // Scene Setup
+// const scene = new THREE.Scene();
+// const camera = new THREE.PerspectiveCamera( 
+//   45, 
+//   sizes.width / sizes.height, 
+//   0.1, 
+//   1000 
+// );
+// camera.position.set( -5.116486390563189, 
+// 2.3337333591461946, 4.899790787134163);
 
 
 // Computer Vid
@@ -247,6 +376,44 @@ function handleRaycasterInteraction(){
 
 window.addEventListener("click", handleRaycasterInteraction);
 
+function playIntroAnimation() {
+  const t1 = gsap.timeline({
+    defaults:{
+    duration: 0.8,
+    ease: "back.out(1.8)",
+    }
+
+  });
+
+t1.to(keagan.scale, {
+  z: 1,
+  x: 1,
+  y: 1,
+}).to(toy.scale, {
+  z: 1,
+  x: 1,
+  y: 1,
+}, "-=0.7"
+).to(linkedin.scale, {
+  z: 1,
+  x: 1,
+  y: 1,
+},"-=0.7"
+).to(github.scale, {
+  z: 1,
+  x: 1,
+  y: 1,
+},"-=0.7"
+).to(photo.scale, {
+  z: 1,
+  x: 1,
+  y: 1,
+}, "-=0.7"
+);
+}
+
+//Declare stuff
+let github, linkedin, toy, photo, keagan, chairtop;
 
 //LOADING MODEL
 loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
@@ -265,7 +432,27 @@ loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
         child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
         
       }
-
+      
+      if (child.name.includes("Github")) {
+        github = child;
+        child.scale.set(0,0,0);
+      } else if (child.name.includes("Linkedin")) {
+        linkedin = child;
+        child.scale.set(0,0,0);
+      } else if (child.name.includes("Toy")) {
+        toy = child;
+        child.scale.set(0,0,0);
+      } else if (child.name.includes("Photo")) {
+        photo = child;
+        child.scale.set(0,0,0);
+      } else if (child.name.includes("Name")) {
+        keagan = child;
+        child.scale.set(0,0,0);
+      }
+      if (child.name.includes("Chairtop")) {
+        chairtop = child;
+        child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
+      }
 
       if(child.name.includes("glass") || child.name.includes("Lamp")){
         child.material = new THREE.MeshPhysicalMaterial({
@@ -316,34 +503,49 @@ loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
   
   });
   scene.add(glb.scene);
-  playIntroAnimation()
+  playIntroAnimation();
 });
 
-
-
-const renderer = new THREE.WebGLRenderer({canvas:canvas, antialias: true});
-renderer.setSize( sizes.width, sizes.height );
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-// Scrolling and angle restrictions
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.minDistance = 2;
-controls.maxDistance = 10;
-controls.minPolarAngle = 0;
-controls.maxPolarAngle = Math.PI/2;
-controls.minAzimuthAngle = -Math.PI/2.5;
-controls.maxAzimuthAngle = 0;
+  // Chair rotate animation
 
 
 
 
-controls.enableDamping = true;
-controls.dampingFactor = 0.08;
+// // Scene Setup
+// const scene = new THREE.Scene();
+// const camera = new THREE.PerspectiveCamera( 
+//   45, 
+//   sizes.width / sizes.height, 
+//   0.1, 
+//   1000 
+// );
+// camera.position.set( -5.116486390563189, 
+// 2.3337333591461946, 4.899790787134163);
+
+// const renderer = new THREE.WebGLRenderer({canvas:canvas, antialias: true});
+// renderer.setSize( sizes.width, sizes.height );
+// renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 
-controls.update();
-controls.target.set(0.5393740914563012, 1.0057838936593084, 
-0.09878860580496839)
+// // Scrolling and angle restrictions
+// const controls = new OrbitControls( camera, renderer.domElement );
+// controls.minDistance = 2;
+// controls.maxDistance = 10;
+// controls.minPolarAngle = 0;
+// controls.maxPolarAngle = Math.PI/2;
+// controls.minAzimuthAngle = -Math.PI/2.5;
+// controls.maxAzimuthAngle = 0;
+
+
+
+
+// controls.enableDamping = true;
+// controls.dampingFactor = 0.08;
+
+
+// controls.update();
+// controls.target.set(0.5393740914563012, 1.0057838936593084, 
+// 0.09878860580496839)
 
 // Event Listeners
 window.addEventListener("resize", ()=>{
@@ -370,9 +572,9 @@ function playHoverAnimation (object, isHovering){
 
   if (isHovering) {
     gsap.to(object.scale, {
-      x: object.userData.initialScale.x * 1.15,
-      y: object.userData.initialScale.y * 1.15,
-      z: object.userData.initialScale.z * 1.15,
+      x: object.userData.initialScale.x * 1.2,
+      y: object.userData.initialScale.y * 1.2,
+      z: object.userData.initialScale.z * 1.2,
       duration: 0.3,
       ease: "bounce.out(1.3)",
     });
@@ -402,17 +604,25 @@ function playHoverAnimation (object, isHovering){
 
 
 // Render Function
-const render = () =>{
+const render = (timestamp) =>{
   controls.update();
+  
+  if (chairtop) {
 
-  // console.log(camera.position);
-  // console.log("0000000")
-  // console.log(controls.target);
+    const time = timestamp * 0.001;
+    const baseAmplitude = -Math.PI / 6;
+
+    const rotationOffset =
+      baseAmplitude *
+      Math.sin(time * 0.5) *
+      (1 - Math.abs(Math.sin(time * 0.5)) * 0.3);
+
+    chairtop.rotation.y = chairtop.userData.initialRotation.y + rotationOffset;
+  }
+
 
   //Raycaster
-  if(!isModalOpen){
-    
-  
+  if(!isModalOpen){ 
   raycaster.setFromCamera(pointer, camera);
 
   //calculate objects intersecting the picking ray

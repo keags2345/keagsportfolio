@@ -147,7 +147,7 @@ const loadingScreenButton = document.querySelector(".loading-screen-button");
     if (isDisabled) return;
 
     loadingScreenButton.style.cursor = "default";
-    loadingScreenButton.style.border = "8px solid vars.$base-black";
+    loadingScreenButton.style.border = "6px solid vars.$base-black";
     loadingScreenButton.style.background = "vars.$base-black";
     loadingScreenButton.style.color = "vars.$base-white";
     loadingScreenButton.style.boxShadow = "none";
@@ -290,16 +290,30 @@ Object.entries(textureMap).forEach(([key, paths]) => {
   loadedTextures.night[key] = nightTexture;
 });
 
-// // Scene Setup
-// const scene = new THREE.Scene();
-// const camera = new THREE.PerspectiveCamera( 
-//   45, 
-//   sizes.width / sizes.height, 
-//   0.1, 
-//   1000 
-// );
-// camera.position.set( -5.116486390563189, 
-// 2.3337333591461946, 4.899790787134163);
+// Smoke Shader setup
+const smokeGeometry = new THREE.PlaneGeometry(1, 1, 16, 64);
+smokeGeometry.translate(0, 0.5, 0);
+smokeGeometry.scale(0.33, 1, 0.33);
+
+const perlinTexture = textureLoader.load("/Shaders/perlin.png");
+
+//Later add other perlin stuff
+
+const smokeMaterial = new THREE.ShaderMaterial({
+  vertexShader: smokeVertexShader,
+  fragmentShader: smokeFragmentShader,
+  uniforms: {
+    uTime: new THREE.Uniform(0),
+    uPerlinTexture: new THREE.Uniform(perlinTexture),
+  },
+  side: THREE.DoubleSide,
+  transparent: true,
+  depthWrite: false,
+});
+
+const smoke = new THREE.Mesh(smokeGeometry, smokeMaterial);
+smoke.position.y = 1.83;
+scene.add(smoke);
 
 
 // Computer Vid
@@ -413,7 +427,7 @@ t1.to(keagan.scale, {
 }
 
 //Declare stuff
-let github, linkedin, toy, photo, keagan, chairtop;
+let github, linkedin, toy, photo, keagan, chairtop, mugPosition;
 
 //LOADING MODEL
 loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
@@ -453,6 +467,12 @@ loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
         chairtop = child;
         child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
       }
+
+      if (child.name.includes("Mug")) {
+        mugPosition = child.position.clone();
+      }
+
+      
 
       if(child.name.includes("glass") || child.name.includes("Lamp")){
         child.material = new THREE.MeshPhysicalMaterial({
@@ -502,50 +522,19 @@ loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
 
   
   });
+
+    if (mugPosition) {
+    smoke.position.set(
+      mugPosition.x,
+      mugPosition.y + 0.2,
+      mugPosition.z
+    );
+  }
+
   scene.add(glb.scene);
   playIntroAnimation();
 });
 
-  // Chair rotate animation
-
-
-
-
-// // Scene Setup
-// const scene = new THREE.Scene();
-// const camera = new THREE.PerspectiveCamera( 
-//   45, 
-//   sizes.width / sizes.height, 
-//   0.1, 
-//   1000 
-// );
-// camera.position.set( -5.116486390563189, 
-// 2.3337333591461946, 4.899790787134163);
-
-// const renderer = new THREE.WebGLRenderer({canvas:canvas, antialias: true});
-// renderer.setSize( sizes.width, sizes.height );
-// renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-
-// // Scrolling and angle restrictions
-// const controls = new OrbitControls( camera, renderer.domElement );
-// controls.minDistance = 2;
-// controls.maxDistance = 10;
-// controls.minPolarAngle = 0;
-// controls.maxPolarAngle = Math.PI/2;
-// controls.minAzimuthAngle = -Math.PI/2.5;
-// controls.maxAzimuthAngle = 0;
-
-
-
-
-// controls.enableDamping = true;
-// controls.dampingFactor = 0.08;
-
-
-// controls.update();
-// controls.target.set(0.5393740914563012, 1.0057838936593084, 
-// 0.09878860580496839)
 
 // Event Listeners
 window.addEventListener("resize", ()=>{
@@ -569,6 +558,29 @@ function playHoverAnimation (object, isHovering){
   gsap.killTweensOf(object.scale);
   gsap.killTweensOf(object.rotation);
   gsap.killTweensOf(object.position);
+
+  if (object.name.includes("Mug")) {
+    gsap.killTweensOf(smoke.scale);
+    if (isHovering) {
+      gsap.to(smoke.scale, {
+        x: 1.4,
+        y: 1.4,
+        z: 1.4,
+        duration: 0.5,
+        ease: "back.out(2)",
+      });
+    } else {
+      gsap.to(smoke.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 0.3,
+        ease: "back.out(2)",
+      });
+    }
+  }
+
+
 
   if (isHovering) {
     gsap.to(object.scale, {
@@ -601,12 +613,18 @@ function playHoverAnimation (object, isHovering){
   }
 }
 
-
+const clock = new THREE.Clock();
 
 // Render Function
 const render = (timestamp) =>{
   controls.update();
-  
+
+  const elapsedTime = clock.getElapsedTime();
+
+  // Update Shader Univform
+  smokeMaterial.uniforms.uTime.value = elapsedTime;
+
+  //Chair rotation
   if (chairtop) {
 
     const time = timestamp * 0.001;

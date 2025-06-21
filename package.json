@@ -9,12 +9,17 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-glsl": "^1.5.0"
   },
   "dependencies": {
+    "glsl": "^0.0.1",
+    "glsl-blend": "^1.0.3",
+    "glslify-loader": "^2.0.0",
     "gsap": "^3.13.0",
+    "include-media": "^2.0.0",
+    "plugin": "^0.3.3",
     "sass": "^1.89.2",
-    "three": "^0.177.0",
-    "vite-plugin-glsl": "^1.5.0"
+    "three": "^0.177.0"
   }
 }

@@ -1,6 +1,7 @@
 @use "./styles/fonts.scss";
 @use "./styles/reset.scss";
 @use "./styles/variables.scss" as vars;
+@use "./styles/defaults.scss" as media;
 
 *{
   margin: 0;
@@ -48,9 +49,9 @@
   border: none;
   font-size: 42px;
 
-  // @include media.media("<=tablet") {
-  //   font-size: 32px;
-  // }
+  @include media.media("<=tablet") {
+    font-size: 32px;
+  }
 }
 
 .instructions {
@@ -66,20 +67,20 @@
   color: #e6dede;
 }
 
-// .desktop-instructions {
-//   @include media.media("<tablet") {
-//     display: none;
-//   }
-// }
+.desktop-instructions {
+  @include media.media("<tablet") {
+    display: none;
+  }
+}
 
-// .mobile-instructions {
-//   @include media.media(">=tablet") {
-//     display: none;
-//   }
-//   @include media.media("<=tablet") {
-//     font-size: 28px;
-//   }
-// }
+.mobile-instructions {
+  @include media.media(">=tablet") {
+    display: none;
+  }
+  @include media.media("<=tablet") {
+    font-size: 28px;
+  }
+}
 
 
 //Experience

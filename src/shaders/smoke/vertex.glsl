@@ -1,3 +1,10 @@
+uniform float uTime;
+uniform sampler2D uPerlinTexture;
+
+varying vec2 vUv;
+
+#include ../includes/rotate2D.glsl
+
 void main()
 {
     vec3 newPosition = position;

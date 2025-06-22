@@ -292,10 +292,12 @@ Object.entries(textureMap).forEach(([key, paths]) => {
 
 // Smoke Shader setup
 const smokeGeometry = new THREE.PlaneGeometry(1, 1, 16, 64);
-smokeGeometry.translate(0, 0.5, 0);
-smokeGeometry.scale(0.33, 1, 0.33);
+smokeGeometry.translate(0, 0.3, 0);
+smokeGeometry.scale(0.08, 0.15, 3);
 
 const perlinTexture = textureLoader.load("/Shaders/perlin.png");
+perlinTexture.wrapS = THREE.RepeatWrapping;
+perlinTexture.wrapT = THREE.RepeatWrapping;
 
 //Later add other perlin stuff
 
@@ -526,7 +528,7 @@ loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
     if (mugPosition) {
     smoke.position.set(
       mugPosition.x,
-      mugPosition.y + 0.2,
+      mugPosition.y +0.1,
       mugPosition.z
     );
   }

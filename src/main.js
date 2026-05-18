@@ -68,23 +68,23 @@ controls.target.set(0.5393740914563012, 1.0057838936593084,
 //   Name:document.querySelector(".modal.Name"),
 // };
 
-const dnEl    = document.querySelector("#dn-toggle");
-const dnLabel = dnEl.querySelector(".dn-label");
-let isDay = true; // starts on day
+// const dnEl    = document.querySelector("#dn-toggle");
+// const dnLabel = dnEl.querySelector(".dn-label");
+// let isDay = true; // starts on day
 
-dnEl.addEventListener("click", () => {
-  isDay = !isDay;
-  dnEl.classList.toggle("is-night", !isDay);
-  dnLabel.textContent = isDay ? "Day" : "Night";
-  gsap.to(dayNight, {
-    mix: isDay ? 1 : 0,
-    duration: 1.4,
-    ease: "power2.inOut",
-    onUpdate: () => {
-      dayNightMaterials.forEach(m => m.uniforms.uMix.value = dayNight.mix);
-    },
-  });
-});
+// dnEl.addEventListener("click", () => {
+//   isDay = !isDay;
+//   dnEl.classList.toggle("is-night", !isDay);
+//   dnLabel.textContent = isDay ? "Day" : "Night";
+//   gsap.to(dayNight, {
+//     mix: isDay ? 1 : 0,
+//     duration: 1.4,
+//     ease: "power2.inOut",
+//     onUpdate: () => {
+//       dayNightMaterials.forEach(m => m.uniforms.uMix.value = dayNight.mix);
+//     },
+//   });
+// });
 
 let touchHappened = false;
 document.querySelectorAll(".modal-exit-button").forEach(button=>{

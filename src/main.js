@@ -310,38 +310,38 @@ Object.entries(textureMap).forEach(([key, paths]) => {
 const dayNight = { mix: 1.0 };
 const dayNightMaterials = [];
 
-function makeDayNightMaterial(dayTex, nightTex) {
-  const mat = new THREE.ShaderMaterial({
-    uniforms: {
-      uDay:   { value: dayTex },
-      uNight: { value: nightTex },
-      uMix:   { value: dayNight.mix },
-    },
-    vertexShader: `
-      varying vec2 vUv;
-      void main(){
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform sampler2D uDay;
-      uniform sampler2D uNight;
-      uniform float uMix;
-      varying vec2 vUv;
-      vec3 sRGBToLinear(vec3 c){
-        return mix( pow((c+0.055)/1.055, vec3(2.4)), c/12.92, step(c, vec3(0.04045)) );
-      }
-      void main(){
-        vec3 d = texture2D(uDay,   vUv).rgb;
-        vec3 n = texture2D(uNight, vUv).rgb;
-        gl_FragColor = vec4( sRGBToLinear(mix(n, d, uMix)), 1.0 );
-      }
-    `,
-  });
-  dayNightMaterials.push(mat);
-  return mat;
-}
+// function makeDayNightMaterial(dayTex, nightTex) {
+//   const mat = new THREE.ShaderMaterial({
+//     uniforms: {
+//       uDay:   { value: dayTex },
+//       uNight: { value: nightTex },
+//       uMix:   { value: dayNight.mix },
+//     },
+//     vertexShader: `
+//       varying vec2 vUv;
+//       void main(){
+//         vUv = uv;
+//         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+//       }
+//     `,
+//     fragmentShader: `
+//       uniform sampler2D uDay;
+//       uniform sampler2D uNight;
+//       uniform float uMix;
+//       varying vec2 vUv;
+//       vec3 sRGBToLinear(vec3 c){
+//         return mix( pow((c+0.055)/1.055, vec3(2.4)), c/12.92, step(c, vec3(0.04045)) );
+//       }
+//       void main(){
+//         vec3 d = texture2D(uDay,   vUv).rgb;
+//         vec3 n = texture2D(uNight, vUv).rgb;
+//         gl_FragColor = vec4( sRGBToLinear(mix(n, d, uMix)), 1.0 );
+//       }
+//     `,
+//   });
+//   dayNightMaterials.push(mat);
+//   return mat;
+// }
 // Smoke Shader setup
 const smokeGeometry = new THREE.PlaneGeometry(1, 1, 16, 64);
 smokeGeometry.translate(0, 0.3, 0);

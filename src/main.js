@@ -543,16 +543,24 @@ loader.load("/models/Hopefullyfinalv15-v1.glb", (glb)=> {
 
           Object.keys(textureMap).forEach((key) => {
             if(child.name.includes(key)) {
-             const material = new THREE.MeshBasicMaterial({
-              map:loadedTextures.night[key],
-          });
+        //      const material = new THREE.MeshBasicMaterial({
+        //       map:loadedTextures.night[key],
+        //   });
 
-          child.material = material;
+        //   child.material = material;
 
-          if(child.material.map){
-            child.material.map.minFilter = THREE.LinearFilter;
-          }
-        }
+        //   if(child.material.map){
+        //     child.material.map.minFilter = THREE.LinearFilter;
+        //   }
+        // }
+		// Ensure both textures use linear filtering
+    loadedTextures.day[key].minFilter   = THREE.LinearFilter;
+    loadedTextures.night[key].minFilter = THREE.LinearFilter;
+    child.material = makeDayNightMaterial(
+      loadedTextures.day[key],
+      loadedTextures.night[key],
+    );
+  }
       }); 
         }
     }
